@@ -11,7 +11,7 @@ const upload = multer({ storage: storage });
 // environment variables are in process.env
 const port = 8832;
 const appName = 'Test Application';
-const bucketName = 'bjm-class1';
+const bucketName = 'bjm-class2';
 const bucketRegion = 'us-west-1';
 
 
@@ -22,10 +22,18 @@ const app = express();
 app.use(express.static('public'));
 
 // If you are going to define routes in THIS file, do it here
-app.post('/image-upload', upload.single('image'), function (req, res) {
-    uploadImage(req.file);
-    res.send('Uploaded');
-    res.render('./public/index.html');
+app.post('/image-upload', upload.single('image'), function (req, res, next) {
+
+    createBucket(bucketName)
+        .then((result) => {
+            uploadImage(req.file);
+            res.send('Uploaded');
+        })
+        .catch((err) => {
+            console.error(err);
+            res.send('Error uploading file');
+        });
+
 });
 
 // Tell the app to listen on the specified port and handle any errors
@@ -38,10 +46,10 @@ app.listen(port, (err) => {
 
 
 // AWS Stuff
-
+// YOU NEED YOUR OWN AWS ACCESS INFO STUFF
 const creds = new AWS.Credentials({
-    accessKeyId: 'AKIAJXFKG7UMRJAC2N6Q',
-    secretAccessKey: 'Jq8rh7EUOYahX1d6O8HVOI64rzut+nmsNsu9ussy',
+    accessKeyId: '',
+    secretAccessKey: '',
 });
 AWS.config.credentials = creds;
 
